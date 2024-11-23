@@ -1,10 +1,36 @@
 {
+  "name": "redwood-app",
+  "version": "0.0.1",
   "private": true,
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=18.x <=20.x"
+  },
+  "packageManager": "yarn@4.4.0",
   "workspaces": {
     "packages": [
       "api",
       "web"
     ]
+  },
+  "scripts": {
+    "rw": "redwood",
+    "dev": "redwood dev",
+    "build": "redwood build",
+    "serve": "redwood serve",
+    "test": "redwood test",
+    "test:api": "redwood test api",
+    "test:web": "redwood test web",
+    "lint": "redwood lint",
+    "format": "redwood format",
+    "setup": "redwood setup",
+    "dataMigrate": "redwood dataMigrate",
+    "deploy": "redwood deploy",
+    "prisma": "redwood prisma",
+    "console": "redwood console",
+    "story": "redwood storybook",
+    "typecheck": "redwood typecheck",
+    "validate": "redwood validate"
   },
   "devDependencies": {
     "@redwoodjs/core": "8.4.1",
@@ -14,14 +40,10 @@
     "extends": "@redwoodjs/eslint-config",
     "root": true
   },
-  "engines": {
-    "node": "=20.x"
+  "resolutions": {
+    "@storybook/react-dom-shim@npm:7.6.17": "https://verdaccio.tobbe.dev/@storybook/react-dom-shim/-/react-dom-shim-8.0.8.tgz"
   },
   "prisma": {
     "seed": "yarn rw exec seed"
-  },
-  "packageManager": "yarn@4.4.0",
-  "resolutions": {
-    "@storybook/react-dom-shim@npm:7.6.17": "https://verdaccio.tobbe.dev/@storybook/react-dom-shim/-/react-dom-shim-8.0.8.tgz"
   }
 }
