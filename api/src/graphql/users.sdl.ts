@@ -18,8 +18,7 @@ export const schema = gql`
 
   input CreateUserInput {
     email: String!
-    hashedPassword: String!
-    salt: String!
+    password: String!
     resetToken: String
     resetTokenExpiresAt: DateTime
   }

@@ -4,6 +4,8 @@ import type {
   UserRelationResolvers,
 } from 'types/graphql'
 
+import { hashPassword } from '@redwoodjs/auth-dbauth-api'
+
 import { db } from 'src/lib/db'
 
 export const users: QueryResolvers['users'] = () => {
@@ -16,9 +18,19 @@ export const user: QueryResolvers['user'] = ({ id }) => {
   })
 }
 
-export const createUser: MutationResolvers['createUser'] = ({ input }) => {
+export const createUser: MutationResolvers['createUser'] = async ({
+  input,
+}) => {
+  const [hashedPassword, salt] = hashPassword(input.password)
+
   return db.user.create({
-    data: input,
+    data: {
+      email: input.email,
+      hashedPassword,
+      salt,
+      resetToken: input.resetToken,
+      resetTokenExpiresAt: input.resetTokenExpiresAt,
+    },
   })
 }
 

@@ -31,10 +31,17 @@ export const schema = gql`
     userId: Int
   }
 
+  input CheckPointInput {
+    x: Float!
+    y: Float!
+    r: Float!
+  }
+
   type Mutation {
     createCoordinate(input: CreateCoordinateInput!): Coordinate! @requireAuth
     updateCoordinate(id: Int!, input: UpdateCoordinateInput!): Coordinate!
       @requireAuth
     deleteCoordinate(id: Int!): Coordinate! @requireAuth
+    checkPoint(input: CheckPointInput!): Coordinate! @requireAuth
   }
 `
