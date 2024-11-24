@@ -33,11 +33,16 @@
     "validate": "redwood validate"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.0",
     "@redwoodjs/core": "8.4.1",
     "@redwoodjs/project-config": "8.4.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@types/tailwindcss": "^3.1.0",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
-    "prettier-plugin-tailwindcss": "^0.5.12",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.9",
     "tailwindcss": "^3.4.15"
   },
   "eslintConfig": {
@@ -51,7 +56,11 @@
     "seed": "yarn rw exec seed"
   },
   "dependencies": {
-    "@redwoodjs/auth-dbauth-setup": "^8.4.1",
-    "lucide-react": "^0.460.0"
+    "@prisma/client": "5.22.0",
+    "@redwoodjs/auth-dbauth-setup": "8.4.1",
+    "lucide-react": "^0.460.0",
+    "prisma": "^5.22.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }
