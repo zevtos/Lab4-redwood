@@ -76,6 +76,7 @@ export const checkPoint: MutationResolvers['checkPoint'] = async ({
   }
 
   // Сохраняем координату с результатом проверки
+  // return await ???
   return db.coordinate.create({
     data: {
       x,
