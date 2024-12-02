@@ -1,275 +1,148 @@
-import { useRef, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
-import { LogOut } from 'lucide-react'
-
-import { Form, Label, NumberField, Submit } from '@redwoodjs/forms'
 import { navigate, routes } from '@redwoodjs/router'
+import { MetaTags } from '@redwoodjs/web'
+import { useMutation, useQuery } from '@redwoodjs/web'
+import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
+import Canvas from 'src/components/Canvas/Canvas'
+import PointForm from 'src/components/PointForm/PointForm'
+import PointsTable from 'src/components/PointsTable/PointsTable'
 
-interface Point {
-  x: number
-  y: number
-  r: number
-  hit: boolean
-  timestamp: string
-}
+const QUERY_COORDINATES = gql`
+  query CoordinatesQuery {
+    coordinates {
+      id
+      x
+      y
+      r
+      hit
+      createdAt
+    }
+  }
+`
+
+const CHECK_POINT_MUTATION = gql`
+  mutation CheckPointMutation($input: CheckPointInput!) {
+    checkPoint(input: $input) {
+      id
+      x
+      y
+      r
+      hit
+      createdAt
+    }
+  }
+`
 
 const HomePage = () => {
-  const { logOut } = useAuth()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [points, setPoints] = useState<Point[]>([])
+  const { isAuthenticated } = useAuth()
   const [radius, setRadius] = useState(2)
 
-  const drawCanvas = (r: number, points: Point[]) => {
-    const canvas = canvasRef.current
-    if (!canvas) return
+  const { data, loading, error, refetch } = useQuery(QUERY_COORDINATES)
+  const [checkPoint] = useMutation(CHECK_POINT_MUTATION, {
+    onCompleted: () => {
+      refetch()
+      toast.success('Point checked successfully!')
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const width = canvas.width
-    const height = canvas.height
-    const scale = width / 10
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height)
-
-    // Set center point
-    ctx.translate(width / 2, height / 2)
-
-    // Draw axes
-    ctx.beginPath()
-    ctx.moveTo(-width / 2, 0)
-    ctx.lineTo(width / 2, 0)
-    ctx.moveTo(0, -height / 2)
-    ctx.lineTo(0, height / 2)
-    ctx.stroke()
-
-    // Draw shape
-    ctx.fillStyle = 'rgba(65, 105, 225, 0.3)'
-    ctx.beginPath()
-
-    // Rectangle
-    ctx.fillRect(0, 0, -(r * scale) / 2, -r * scale)
-
-    // Triangle
-    ctx.moveTo(0, 0)
-    ctx.lineTo((r * scale) / 2, 0)
-    ctx.lineTo(0, -r * scale)
-    ctx.closePath()
-
-    // Quarter circle
-    ctx.moveTo(0, 0)
-    ctx.arc(0, 0, r * scale, 0, Math.PI / 2)
-
-    ctx.fill()
-
-    // Draw points
-    points.forEach((point) => {
-      ctx.beginPath()
-      ctx.arc(point.x * scale, -point.y * scale, 4, 0, 2 * Math.PI)
-      ctx.fillStyle = point.hit ? '#4CAF50' : '#F44336'
-      ctx.fill()
-    })
-
-    // Reset transformation
-    ctx.setTransform(1, 0, 0, 1, 0, 0)
-  }
-
-  useEffect(() => {
-    drawCanvas(radius, points)
-  }, [radius, points])
-
-  const handleCanvasClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-    // if (!isAuthenticated()) return;
-
-    const canvas = canvasRef.current
-    if (!canvas) return
-
+  const handleCanvasClick = async (
+    event: React.MouseEvent<HTMLCanvasElement>
+  ) => {
+    const canvas = event.currentTarget
     const rect = canvas.getBoundingClientRect()
     const scale = canvas.width / 10
 
     const x = (event.clientX - rect.left - canvas.width / 2) / scale
     const y = -(event.clientY - rect.top - canvas.height / 2) / scale
 
-    // Add point check logic here
-    const newPoint: Point = {
-      x,
-      y,
-      r: radius,
-      hit: checkHit(x, y, radius),
-      timestamp: new Date().toISOString(),
+    try {
+      await checkPoint({
+        variables: {
+          input: {
+            x: parseFloat(x.toFixed(2)),
+            y: parseFloat(y.toFixed(2)),
+            r: radius,
+          },
+        },
+      })
+    } catch (error) {
+      console.error('Error checking point:', error)
     }
-
-    setPoints([...points, newPoint])
   }
 
-  const checkHit = (x: number, y: number, r: number): boolean => {
-    // Rectangle
-    if (x >= 0 && x <= r && y >= 0 && y <= r / 2) return true
-
-    // Triangle
-    if (x <= 0 && y <= 0 && y >= -2 * x - r) return true
-
-    // Quarter circle
-    if (x >= 0 && y <= 0 && x * x + y * y <= r * r) return true
-
-    return false
+  const handleFormSubmit = async (data: {
+    x: number
+    y: number
+    r: number
+  }) => {
+    try {
+      await checkPoint({
+        variables: {
+          input: {
+            x: parseFloat(data.x.toFixed(2)),
+            y: parseFloat(data.y.toFixed(2)),
+            r: data.r,
+          },
+        },
+      })
+    } catch (error) {
+      console.error('Error checking point:', error)
+    }
   }
 
-  const handleLogout = async () => {
-    await logOut()
-    navigate(routes.login())
+  if (loading) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+        <div className="text-red-600">
+          Error loading points: {error.message}
+        </div>
+      </div>
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex h-16 justify-between">
-            <div className="flex items-center">
-              <h1 className="text-xl font-semibold">Point Checker</h1>
-            </div>
-            <div className="flex items-center">
-              {/* <span className="mr-4">Welcome, {currentUser?.email}</span> */}
-              <button
-                onClick={handleLogout}
-                className="inline-flex items-center rounded-md border border-transparent bg-indigo-600 px-3 py-2 text-sm font-medium leading-4 text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-              >
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </button>
-            </div>
+    <>
+      <MetaTags title="Home" description="Point checking dashboard" />
+      <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
+
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+          <PointForm
+            radius={radius}
+            onRadiusChange={setRadius}
+            onSubmit={handleFormSubmit}
+          />
+        </div>
+
+        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
+          <Canvas
+            points={data?.coordinates || []}
+            radius={radius}
+            onCanvasClick={handleCanvasClick}
+          />
+        </div>
+
+        <div className="lg:col-span-2">
+          <div className="rounded-lg bg-white shadow-sm ring-1 ring-gray-900/5">
+            <PointsTable points={data?.coordinates || []} />
           </div>
         </div>
-      </nav>
-
-      <main className="mx-auto max-w-7xl py-6 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <div className="rounded-lg bg-white p-6 shadow">
-            <Form className="space-y-4">
-              <div>
-                <Label
-                  name="x"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  X Coordinate (-5 to 5)
-                </Label>
-                <NumberField
-                  name="x"
-                  validation={{
-                    required: true,
-                    min: -5,
-                    max: 5,
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <Label
-                  name="y"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Y Coordinate (-3 to 5)
-                </Label>
-                <NumberField
-                  name="y"
-                  validation={{
-                    required: true,
-                    min: -3,
-                    max: 5,
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <div>
-                <Label
-                  name="r"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Radius (-5 to 5)
-                </Label>
-                <NumberField
-                  name="r"
-                  value={radius}
-                  onChange={(e) => setRadius(parseFloat(e.target.value))}
-                  validation={{
-                    required: true,
-                    min: -5,
-                    max: 5,
-                  }}
-                  className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-                />
-              </div>
-
-              <Submit className="flex w-full justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
-                Check Point
-              </Submit>
-            </Form>
-          </div>
-
-          <div className="rounded-lg bg-white p-6 shadow">
-            <canvas
-              ref={canvasRef}
-              width={400}
-              height={400}
-              onClick={handleCanvasClick}
-              className="cursor-crosshair rounded-lg border border-gray-200"
-            />
-          </div>
-
-          <div className="overflow-hidden rounded-lg bg-white shadow lg:col-span-2">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    X
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Y
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    R
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Hit
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-gray-500">
-                    Timestamp
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 bg-white">
-                {points.map((point, index) => (
-                  <tr key={index}>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {point.x.toFixed(2)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      {point.y.toFixed(2)}
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4">{point.r}</td>
-                    <td className="whitespace-nowrap px-6 py-4">
-                      <span
-                        className={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${point.hit ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}
-                      >
-                        {point.hit ? 'Hit' : 'Miss'}
-                      </span>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
-                      {new Date(point.timestamp).toLocaleString()}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </main>
-    </div>
+      </div>
+    </>
   )
 }
 

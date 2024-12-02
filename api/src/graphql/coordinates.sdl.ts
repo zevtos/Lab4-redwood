@@ -20,7 +20,6 @@ export const schema = gql`
     y: Float!
     r: Float!
     hit: Boolean!
-    userId: Int!
   }
 
   input UpdateCoordinateInput {
@@ -28,7 +27,6 @@ export const schema = gql`
     y: Float
     r: Float
     hit: Boolean
-    userId: Int
   }
 
   input CheckPointInput {

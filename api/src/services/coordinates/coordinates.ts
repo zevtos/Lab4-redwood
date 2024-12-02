@@ -6,6 +6,7 @@ import type {
 
 import { requireAuth } from 'src/lib/auth'
 import { db } from 'src/lib/db'
+import { validatePoint, checkPointHit } from 'src/lib/pointCheck'
 
 export const coordinates: QueryResolvers['coordinates'] = () => {
   requireAuth()
@@ -26,6 +27,7 @@ export const createCoordinate: MutationResolvers['createCoordinate'] = ({
   input,
 }) => {
   requireAuth()
+  validatePoint(input.x, input.y, input.r)
   return db.coordinate.create({
     data: {
       ...input,
@@ -39,6 +41,9 @@ export const updateCoordinate: MutationResolvers['updateCoordinate'] = ({
   input,
 }) => {
   requireAuth()
+  if (input.x !== undefined && input.y !== undefined && input.r !== undefined) {
+    validatePoint(input.x, input.y, input.r)
+  }
   return db.coordinate.update({
     data: input,
     where: { id },
@@ -58,25 +63,10 @@ export const checkPoint: MutationResolvers['checkPoint'] = async ({
   input: { x, y, r },
 }) => {
   requireAuth()
+  validatePoint(x, y, r)
 
-  // Проверка попадания точки в область
-  let hit = false
+  const hit = checkPointHit(x, y, r)
 
-  // Первая четверть: прямоугольник
-  if (x >= 0 && y >= 0) {
-    hit = x <= r && y <= r
-  }
-  // Вторая четверть: треугольник
-  else if (x <= 0 && y >= 0) {
-    hit = y <= -x + r && y <= r && x >= -r
-  }
-  // Четвёртая четверть: четверть окружности
-  else if (x >= 0 && y <= 0) {
-    hit = Math.sqrt(x * x + y * y) <= r
-  }
-
-  // Сохраняем координату с результатом проверки
-  // return await ???
   return db.coordinate.create({
     data: {
       x,

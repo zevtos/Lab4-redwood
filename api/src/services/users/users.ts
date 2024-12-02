@@ -4,6 +4,7 @@ import type {
   UserRelationResolvers,
 } from 'types/graphql'
 
+import { validate } from '@redwoodjs/api'
 import { hashPassword } from '@redwoodjs/auth-dbauth-api'
 
 import { db } from 'src/lib/db'
@@ -21,6 +22,25 @@ export const user: QueryResolvers['user'] = ({ id }) => {
 export const createUser: MutationResolvers['createUser'] = async ({
   input,
 }) => {
+  validate(input.email, 'Email', {
+    email: true,
+    presence: true,
+  })
+
+  validate(input.password, 'Password', {
+    presence: true,
+    length: { minimum: 8, message: 'must be at least 8 characters' },
+  })
+
+  // Check if user already exists
+  const existingUser = await db.user.findUnique({
+    where: { email: input.email },
+  })
+
+  if (existingUser) {
+    throw new Error('A user with this email already exists')
+  }
+
   const [hashedPassword, salt] = hashPassword(input.password)
 
   return db.user.create({
