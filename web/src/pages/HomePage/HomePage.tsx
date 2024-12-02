@@ -7,6 +7,7 @@ import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import Canvas from 'src/components/Canvas/Canvas'
+import Header from 'src/components/Header/Header'
 import PointForm from 'src/components/PointForm/PointForm'
 import PointsTable from 'src/components/PointsTable/PointsTable'
 
@@ -118,7 +119,7 @@ const HomePage = () => {
     <>
       <MetaTags title="Home" description="Point checking dashboard" />
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-
+      <Header />
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
           <PointForm

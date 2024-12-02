@@ -1,5 +1,4 @@
-import { Link, routes } from '@redwoodjs/router'
-import { navigate, routes } from '@redwoodjs/router'
+import { Link, routes, navigate } from '@redwoodjs/router'
 
 import { useAuth } from 'src/auth'
 import Logo from 'src/components/Logo/Logo'
