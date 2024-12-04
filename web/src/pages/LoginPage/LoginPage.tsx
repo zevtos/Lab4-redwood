@@ -6,9 +6,6 @@ import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
-import Header from 'src/components/Header/Header'
-
-
 
 const LoginPage = () => {
   const { logIn } = useAuth()
@@ -32,7 +29,7 @@ const LoginPage = () => {
     <>
       <MetaTags title="Login" />
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-      <Header />
+
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="rounded-lg bg-white px-4 py-8 shadow-xl sm:px-10">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
