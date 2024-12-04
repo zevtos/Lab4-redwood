@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useEffect } from 'react'
 
-import { navigate, routes } from '@redwoodjs/router'
+import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -99,12 +99,14 @@ const HomePage = () => {
     }
   }
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      console.log('is not authenticated')
-      navigate(routes.login())
-    }
-  }, [isAuthenticated])
+  // useEffect(() => {
+  //   if (isAuthenticated) {
+  //     console.log('is not authenticated')
+  //     navigate(routes.login())
+  //   } else {
+  //     console.log('is authenticated')
+  //   }
+  // }, [isAuthenticated])
 
   if (loading) {
     return (
@@ -116,9 +118,23 @@ const HomePage = () => {
 
   if (error) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center space-y-6">
         <div className="text-red-600">
           Error loading points: {error.message}
+        </div>
+        <div className="space-y-4">
+          <Link
+            to={routes.signup()}
+            className="block w-full rounded-md bg-blue-600 px-4 py-3 font-medium text-white transition duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Sign up
+          </Link>
+          <Link
+            to={routes.login()}
+            className="block w-full rounded-md border-2 border-blue-600 px-4 py-3 font-medium text-blue-600 transition duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+          >
+            Sign in
+          </Link>
         </div>
       </div>
     )

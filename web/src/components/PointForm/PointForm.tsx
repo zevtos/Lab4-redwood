@@ -1,4 +1,6 @@
-import { Form, Label, NumberField, Submit } from '@redwoodjs/forms'
+import React, { useState } from 'react'
+
+import { Form, Label, Submit } from '@redwoodjs/forms'
 
 interface PointFormProps {
   radius: number
@@ -6,30 +8,88 @@ interface PointFormProps {
   onSubmit: (data: { x: number; y: number; r: number }) => void
 }
 
-const PointForm = ({ radius, onRadiusChange, onSubmit }: PointFormProps) => {
+const CustomNumberInput = ({
+  name,
+  value,
+  onChange,
+  min,
+  max,
+  required = true,
+}: {
+  name: string
+  value?: string
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+  min: number
+  max: number
+  required?: boolean
+}) => {
+  const [inputValue, setInputValue] = useState<string>(value?.toString() || '')
+  const [error, setError] = useState<string>('')
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+
+    // Allow empty string, minus sign, and numbers within range
+    if (newValue === '' || newValue === '-' || !isNaN(Number(newValue))) {
+      setInputValue(newValue)
+      setError('')
+
+      if (newValue === '' || newValue === '-') {
+        return
+      }
+
+      const numValue = Number(newValue)
+      if (numValue < min || numValue > max) {
+        setError(`Value must be between ${min} and ${max}`)
+      } else if (onChange) {
+        onChange(e)
+      }
+    }
+  }
+
   return (
-    <Form onSubmit={onSubmit} className="space-y-4">
+    <div>
+      <input
+        type="text"
+        name={name}
+        value={inputValue}
+        onChange={handleChange}
+        required={required}
+        className="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+      />
+      {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+    </div>
+  )
+}
+
+const PointForm = ({ radius, onRadiusChange, onSubmit }: PointFormProps) => {
+  const [xValue, setXValue] = useState<string>('')
+  const [yValue, setYValue] = useState<string>('')
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+
+    const x = Number(xValue)
+    const y = Number(yValue)
+    const r = Number(radius)
+
+    if (!isNaN(x) && !isNaN(y) && !isNaN(r)) {
+      onSubmit({ x, y, r })
+    }
+  }
+
+  return (
+    <Form onSubmit={handleSubmit} className="space-y-4">
       <div>
         <Label name="x" className="block text-sm font-medium text-gray-700">
           X Coordinate (-5 to 5)
         </Label>
-        <NumberField
+        <CustomNumberInput
           name="x"
-          validation={{
-            required: {
-              value: true,
-              message: 'X coordinate is required',
-            },
-            min: {
-              value: -5,
-              message: 'X must be greater than or equal to -5',
-            },
-            max: {
-              value: 5,
-              message: 'X must be less than or equal to 5',
-            },
-          }}
-          className="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+          value={xValue}
+          onChange={(e) => setXValue(e.target.value)}
+          min={-5}
+          max={5}
         />
       </div>
 
@@ -37,49 +97,25 @@ const PointForm = ({ radius, onRadiusChange, onSubmit }: PointFormProps) => {
         <Label name="y" className="block text-sm font-medium text-gray-700">
           Y Coordinate (-3 to 5)
         </Label>
-        <NumberField
+        <CustomNumberInput
           name="y"
-          validation={{
-            required: {
-              value: true,
-              message: 'Y coordinate is required',
-            },
-            min: {
-              value: -3,
-              message: 'Y must be greater than or equal to -3',
-            },
-            max: {
-              value: 5,
-              message: 'Y must be less than or equal to 5',
-            },
-          }}
-          className="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+          value={yValue}
+          onChange={(e) => setYValue(e.target.value)}
+          min={-3}
+          max={5}
         />
       </div>
 
       <div>
         <Label name="r" className="block text-sm font-medium text-gray-700">
-          Radius (1 to 5)
+          Radius (-5 to 5)
         </Label>
-        <NumberField
+        <CustomNumberInput
           name="r"
-          value={radius}
-          onChange={(e) => onRadiusChange(parseFloat(e.target.value))}
-          validation={{
-            required: {
-              value: true,
-              message: 'Radius is required',
-            },
-            min: {
-              value: 1,
-              message: 'Radius must be greater than or equal to 1',
-            },
-            max: {
-              value: 5,
-              message: 'Radius must be less than or equal to 5',
-            },
-          }}
-          className="mt-1 block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+          value={radius.toString()}
+          onChange={(e) => onRadiusChange(Number(e.target.value))}
+          min={-5}
+          max={5}
         />
       </div>
 
