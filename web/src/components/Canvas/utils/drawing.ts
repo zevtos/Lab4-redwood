@@ -19,21 +19,39 @@ export const drawShapes = (
   radius: number,
   drawScale: number
 ) => {
+  const absRadius = Math.abs(radius)
+  const isNegative = radius < 0
+
   ctx.fillStyle = 'rgba(65, 105, 225, 0.3)'
   ctx.beginPath()
 
-  // Rectangle
-  ctx.fillRect(0, 0, -(radius * drawScale) / 2, -radius * drawScale)
+  if (!isNegative) {
+    // Rectangle
+    ctx.fillRect(0, 0, -(absRadius * drawScale) / 2, -absRadius * drawScale)
 
-  // Triangle
-  ctx.moveTo(0, 0)
-  ctx.lineTo((radius * drawScale) / 2, 0)
-  ctx.lineTo(0, -radius * drawScale)
-  ctx.closePath()
+    // Triangle
+    ctx.moveTo(0, 0)
+    ctx.lineTo((absRadius * drawScale) / 2, 0)
+    ctx.lineTo(0, -absRadius * drawScale)
+    ctx.closePath()
 
-  // Quarter circle
-  ctx.moveTo(0, 0)
-  ctx.arc(0, 0, radius * drawScale, 0, Math.PI / 2)
+    // Quarter circle
+    ctx.moveTo(0, 0)
+    ctx.arc(0, 0, absRadius * drawScale, 0, Math.PI / 2)
+  } else {
+    // Mirrored Rectangle
+    ctx.fillRect(0, 0, (absRadius * drawScale) / 2, absRadius * drawScale)
+
+    // Mirrored Triangle
+    ctx.moveTo(0, 0)
+    ctx.lineTo(-(absRadius * drawScale) / 2, 0)
+    ctx.lineTo(0, absRadius * drawScale)
+    ctx.closePath()
+
+    // Mirrored Quarter circle
+    ctx.moveTo(0, 0)
+    ctx.arc(0, 0, absRadius * drawScale, Math.PI, (3 * Math.PI) / 2)
+  }
 
   ctx.fill()
 }
