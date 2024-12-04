@@ -3,13 +3,9 @@ import { Link, routes, navigate } from '@redwoodjs/router'
 import { useAuth } from 'src/auth'
 import Logo from 'src/components/Logo/Logo'
 import StudentInfo from 'src/components/StudentInfo/StudentInfo'
+
 const Header = () => {
   const { isAuthenticated, logOut } = useAuth()
-
-  const handleLogout = async () => {
-    await logOut()
-    navigate(routes.login())
-  }
 
   return (
     <header className="border-b bg-white shadow-sm">
@@ -48,7 +44,10 @@ const Header = () => {
                 Dashboard
               </Link>
               <button
-                onClick={handleLogout}
+                onClick={async () => {
+                  await logOut()
+                  navigate(routes.login())
+                }}
                 className="rounded-md bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100"
               >
                 Logout
