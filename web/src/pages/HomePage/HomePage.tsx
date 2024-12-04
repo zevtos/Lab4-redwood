@@ -1,5 +1,7 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
 
+import { navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
@@ -9,7 +11,6 @@ import Canvas from 'src/components/Canvas/Canvas'
 import Header from 'src/components/Header/Header'
 import PointForm from 'src/components/PointForm/PointForm'
 import PointsTable from 'src/components/PointsTable/PointsTable'
-
 const QUERY_COORDINATES = gql`
   query CoordinatesQuery {
     coordinates {
@@ -73,6 +74,7 @@ const HomePage = () => {
       })
     } catch (error) {
       console.error('Error checking point:', error)
+      toast.error('Error checking point')
     }
   }
 
@@ -93,8 +95,16 @@ const HomePage = () => {
       })
     } catch (error) {
       console.error('Error checking point:', error)
+      toast.error('Error checking point')
     }
   }
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      console.log('is not authenticated')
+      navigate(routes.login())
+    }
+  }, [isAuthenticated])
 
   if (loading) {
     return (
