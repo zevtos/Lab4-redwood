@@ -1,0 +1,46 @@
+services:
+  redwood:
+    container_name: redwood
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+      target: base
+    command: yarn rw dev
+    volumes:
+      - .:/home/node/app
+      - node_modules:/home/node/app/node_modules
+    ports:
+      - '8910:8910'
+    depends_on:
+      - db
+    networks:
+      - redwood
+
+  db:
+    image: postgres:17
+    container_name: redwood_db
+    restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - redwood
+
+volumes:
+  node_modules:
+    driver: local
+    name: node_data
+  postgres:
+    driver: local
+    name: postgres_data
+
+networks:
+  library:
+    driver: bridge
+    name: redwood
