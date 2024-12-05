@@ -29,7 +29,6 @@ RUN --mount=type=cache,target=/home/node/.yarn/berry/cache,uid=1000 \
 
 COPY --chown=node:node redwood.toml .
 COPY --chown=node:node graphql.config.js .
-COPY --chown=node:node .env.defaults .env.defaults
 
 # api build
 # ---------
@@ -84,7 +83,6 @@ RUN --mount=type=cache,target=/home/node/.yarn/berry/cache,uid=1000 \
 
 COPY --chown=node:node redwood.toml .
 COPY --chown=node:node graphql.config.js .
-COPY --chown=node:node .env.defaults .env.defaults
 
 COPY --chown=node:node --from=api_build /home/node/app/api/dist /home/node/app/api/dist
 COPY --chown=node:node --from=api_build /home/node/app/api/db /home/node/app/api/db
@@ -92,13 +90,6 @@ COPY --chown=node:node --from=api_build /home/node/app/node_modules/.prisma /hom
 
 ENV NODE_ENV=production
 
-# default api serve command
-# ---------
-# If you are using a custom server file, you must use the following
-# command to launch your server instead of the default api-server below.
-# This is important if you intend to configure GraphQL to use Realtime.
-#
-# CMD [ "./api/dist/server.js" ]
 CMD [ "node_modules/.bin/rw-server", "api" ]
 
 # web serve
@@ -124,7 +115,6 @@ RUN --mount=type=cache,target=/home/node/.yarn/berry/cache,uid=1000 \
 
 COPY --chown=node:node redwood.toml .
 COPY --chown=node:node graphql.config.js .
-COPY --chown=node:node .env.defaults .env.defaults
 
 COPY --chown=node:node --from=web_build /home/node/app/web/dist /home/node/app/web/dist
 
@@ -137,17 +127,6 @@ CMD "node_modules/.bin/rw-web-server" "--api-proxy-target" "$API_PROXY_TARGET"
 # console
 # -------
 FROM base as console
-
-# To add more packages:
-#
-# ```
-# USER root
-#
-# RUN apt-get update && apt-get install -y \
-#     curl
-#
-# USER node
-# ```
 
 COPY --chown=node:node api api
 COPY --chown=node:node web web

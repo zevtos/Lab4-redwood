@@ -15,23 +15,25 @@ services:
       - db
     networks:
       - redwood
+    environment:
+      - DATABASE_URL=postgresql://redwood:redwood@db:5432/redwood
+      - TEST_DATABASE_URL=postgresql://redwood:redwood@db:5432/redwood_test
+      - SESSION_SECRET=qOZQWsQI2byzQJwd3FxnERg1uyOxfVjw4e831UGMLSQ=
+      - NODE_ENV=development
+      - REDWOOD_API_HOST=0.0.0.0
 
   db:
-    image: postgres:17
-    container_name: redwood_db
-    restart: always
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-    ports:
-      - '5432:5432'
-    volumes:
-      - postgres:/var/lib/postgresql/data
-    networks:
-      - redwood
-
+      image: postgres:17
+      environment:
+        POSTGRES_USER: redwood
+        POSTGRES_PASSWORD: redwood
+        POSTGRES_DB: redwood
+      ports:
+        - '5432:5432'
+      volumes:
+        - postgres:/var/lib/postgresql/data
+      networks:
+        - redwood
 volumes:
   node_modules:
     driver: local
@@ -41,6 +43,6 @@ volumes:
     name: postgres_data
 
 networks:
-  library:
+  redwood:
     driver: bridge
     name: redwood
