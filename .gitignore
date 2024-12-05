@@ -24,7 +24,9 @@ api/src/lib/generateGraphiQLHeader.*
 !.yarn/versions
 
 postgres
-package-lock.json
-package.json
-redwood.toml
 yarn.lock
+api/package-lock.json
+api/package.json
+package-lock.json
+redwood.toml
+web/package.json
