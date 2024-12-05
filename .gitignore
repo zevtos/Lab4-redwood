@@ -27,3 +27,4 @@ postgres
 api/package-lock.json
 package-lock.json
 redwood.toml
+yarn.lock

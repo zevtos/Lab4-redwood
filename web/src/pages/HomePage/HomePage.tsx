@@ -1,10 +1,8 @@
 import { useState } from 'react'
-
 import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { useMutation, useQuery } from '@redwoodjs/web'
 import { Toaster } from '@redwoodjs/web/toast'
-
 import { useAuth } from 'src/auth'
 import Canvas from 'src/components/Canvas/Canvas'
 import DeleteAllButton from 'src/components/DeleteAllButton/DeleteAllButton'
@@ -91,25 +89,30 @@ const HomePage = () => {
   if (loading) {
     return (
       <div className="flex h-[calc(100vh-4rem)] items-center justify-center">
-        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent"></div>
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-blue-600 border-t-transparent">
+          <span className="sr-only">Loading...</span>
+        </div>
       </div>
     )
   }
 
   if (error) {
     return (
-      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center space-y-6">
-        <div className="text-red-600">Error loading points: {error.message}</div>
-        <div className="space-y-4">
+      <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center space-y-6 bg-gray-50 px-4">
+        <div className="text-center">
+          <h2 className="mb-2 text-2xl font-bold text-gray-900">Unable to load points</h2>
+          <p className="text-red-600">{error.message}</p>
+        </div>
+        <div className="w-full max-w-sm space-y-4">
           <Link
             to={routes.signup()}
-            className="block w-full rounded-md bg-blue-600 px-4 py-3 font-medium text-white transition duration-200 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="block w-full rounded-lg bg-blue-600 px-4 py-3 text-center font-medium text-white shadow-md transition duration-200 hover:bg-blue-700 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Sign up
           </Link>
           <Link
             to={routes.login()}
-            className="block w-full rounded-md border-2 border-blue-600 px-4 py-3 font-medium text-blue-600 transition duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="block w-full rounded-lg border-2 border-blue-600 px-4 py-3 text-center font-medium text-blue-600 transition duration-200 hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             Sign in
           </Link>
@@ -123,29 +126,34 @@ const HomePage = () => {
       <MetaTags title="Home" description="Point checking dashboard" />
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
       <Header />
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-          <PointForm
-            radius={radius}
-            onRadiusChange={setRadius}
-            onSubmit={handleFormSubmit}
-          />
-        </div>
+      <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 px-4 py-8">
+        <div className="mx-auto max-w-7xl space-y-6">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <div className="overflow-hidden rounded-xl bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl">
+              <PointForm
+                radius={radius}
+                onRadiusChange={setRadius}
+                onSubmit={handleFormSubmit}
+              />
+            </div>
 
-        <div className="rounded-lg bg-white p-6 shadow-sm ring-1 ring-gray-900/5">
-          <Canvas
-            points={data?.coordinates || []}
-            radius={radius}
-            onCanvasClick={handleCanvasClick}
-          />
-        </div>
+            <div className="overflow-hidden rounded-xl bg-white p-6 shadow-lg transition-all duration-300 hover:shadow-xl">
+              <Canvas
+                points={data?.coordinates || []}
+                radius={radius}
+                onCanvasClick={handleCanvasClick}
+              />
+            </div>
+          </div>
 
-        <div className="lg:col-span-2">
-          <div className="rounded-lg bg-white shadow-sm ring-1 ring-gray-900/5">
-            <div className="flex justify-end p-4">
+          <div className="overflow-hidden rounded-xl bg-white shadow-lg">
+            <div className="flex items-center justify-between border-b border-gray-200 p-4">
+              <h2 className="text-lg font-semibold text-gray-900">Results</h2>
               <DeleteAllButton onSuccess={refetch} />
             </div>
-            <PointsTable points={data?.coordinates || []} />
+            <div className="overflow-hidden">
+              <PointsTable points={data?.coordinates || []} />
+            </div>
           </div>
         </div>
       </div>
