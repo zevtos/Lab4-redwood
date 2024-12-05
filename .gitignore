@@ -22,3 +22,9 @@ api/src/lib/generateGraphiQLHeader.*
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+postgres
+package-lock.json
+package.json
+redwood.toml
+yarn.lock
