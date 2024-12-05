@@ -67,7 +67,6 @@ const PointForm = ({ radius, onRadiusChange, onSubmit }: PointFormProps) => {
   const [yValue, setYValue] = useState<string>('')
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
 
     const x = Number(xValue)
     const y = Number(yValue)
