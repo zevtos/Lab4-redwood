@@ -59,6 +59,14 @@ export const deleteCoordinate: MutationResolvers['deleteCoordinate'] = ({
   })
 }
 
+export const deleteAllCoordinates: MutationResolvers['deleteAllCoordinates'] = async () => {
+  requireAuth()
+  await db.coordinate.deleteMany({
+    where: { userId: context.currentUser.id },
+  })
+  return true
+}
+
 export const checkPoint: MutationResolvers['checkPoint'] = async ({
   input: { x, y, r },
 }) => {

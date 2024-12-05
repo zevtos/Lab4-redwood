@@ -4,7 +4,7 @@ import { Form, Label, TextField, PasswordField, Submit } from '@redwoodjs/forms'
 import { Link, navigate, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { toast, Toaster } from '@redwoodjs/web/toast'
-
+import Header from 'src/components/Header/Header'
 import { useAuth } from 'src/auth'
 
 const LoginPage = () => {
@@ -29,7 +29,7 @@ const LoginPage = () => {
     <>
       <MetaTags title="Login" />
       <Toaster toastOptions={{ className: 'rw-toast', duration: 6000 }} />
-
+      <Header />
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="rounded-lg bg-white px-4 py-8 shadow-xl sm:px-10">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">

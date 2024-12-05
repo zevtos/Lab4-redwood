@@ -9,7 +9,7 @@
 
 // This import will be automatically removed when building for production
 import { DevFatalErrorPage } from '@redwoodjs/web/dist/components/DevFatalErrorPage'
-
+import Header from 'src/components/Header/Header'
 export default DevFatalErrorPage ||
   (() => (
     <main>

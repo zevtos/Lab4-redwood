@@ -1,14 +1,7 @@
-interface Point {
-  id: number
-  x: number
-  y: number
-  r: number
-  hit: boolean
-  createdAt: string
-}
+import type { Coordinate } from 'types/graphql'
 
 interface PointsTableProps {
-  points: Point[]
+  points: Coordinate[]
 }
 
 const PointsTable = ({ points }: PointsTableProps) => {

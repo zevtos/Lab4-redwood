@@ -40,6 +40,7 @@ export const schema = gql`
     updateCoordinate(id: Int!, input: UpdateCoordinateInput!): Coordinate!
       @requireAuth
     deleteCoordinate(id: Int!): Coordinate! @requireAuth
+    deleteAllCoordinates: Boolean! @requireAuth
     checkPoint(input: CheckPointInput!): Coordinate! @requireAuth
   }
 `

@@ -1,16 +1,17 @@
 import { useState } from 'react'
-import { useEffect } from 'react'
 
-import { Link, navigate, routes } from '@redwoodjs/router'
+import { Link, routes } from '@redwoodjs/router'
 import { MetaTags } from '@redwoodjs/web'
 import { useMutation, useQuery } from '@redwoodjs/web'
-import { toast, Toaster } from '@redwoodjs/web/toast'
+import { Toaster } from '@redwoodjs/web/toast'
 
 import { useAuth } from 'src/auth'
 import Canvas from 'src/components/Canvas/Canvas'
+import DeleteAllButton from 'src/components/DeleteAllButton/DeleteAllButton'
 import Header from 'src/components/Header/Header'
 import PointForm from 'src/components/PointForm/PointForm'
 import PointsTable from 'src/components/PointsTable/PointsTable'
+
 const QUERY_COORDINATES = gql`
   query CoordinatesQuery {
     coordinates {
@@ -45,16 +46,10 @@ const HomePage = () => {
   const [checkPoint] = useMutation(CHECK_POINT_MUTATION, {
     onCompleted: () => {
       refetch()
-      toast.success('Point checked successfully!')
-    },
-    onError: (error) => {
-      toast.error(error.message)
     },
   })
 
-  const handleCanvasClick = async (
-    event: React.MouseEvent<HTMLCanvasElement>
-  ) => {
+  const handleCanvasClick = async (event: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = event.currentTarget
     const rect = canvas.getBoundingClientRect()
     const scale = canvas.width / 10
@@ -74,15 +69,10 @@ const HomePage = () => {
       })
     } catch (error) {
       console.error('Error checking point:', error)
-      toast.error('Error checking point')
     }
   }
 
-  const handleFormSubmit = async (data: {
-    x: number
-    y: number
-    r: number
-  }) => {
+  const handleFormSubmit = async (data: { x: number; y: number; r: number }) => {
     try {
       await checkPoint({
         variables: {
@@ -95,18 +85,8 @@ const HomePage = () => {
       })
     } catch (error) {
       console.error('Error checking point:', error)
-      toast.error('Error checking point')
     }
   }
-
-  // useEffect(() => {
-  //   if (isAuthenticated) {
-  //     console.log('is not authenticated')
-  //     navigate(routes.login())
-  //   } else {
-  //     console.log('is authenticated')
-  //   }
-  // }, [isAuthenticated])
 
   if (loading) {
     return (
@@ -119,9 +99,7 @@ const HomePage = () => {
   if (error) {
     return (
       <div className="flex h-[calc(100vh-4rem)] flex-col items-center justify-center space-y-6">
-        <div className="text-red-600">
-          Error loading points: {error.message}
-        </div>
+        <div className="text-red-600">Error loading points: {error.message}</div>
         <div className="space-y-4">
           <Link
             to={routes.signup()}
@@ -164,6 +142,9 @@ const HomePage = () => {
 
         <div className="lg:col-span-2">
           <div className="rounded-lg bg-white shadow-sm ring-1 ring-gray-900/5">
+            <div className="flex justify-end p-4">
+              <DeleteAllButton onSuccess={refetch} />
+            </div>
             <PointsTable points={data?.coordinates || []} />
           </div>
         </div>
